@@ -1,0 +1,11 @@
+export { AccessLevel } from './accesLevel.entity';
+export { Role } from './role.entity';
+export { RoleResourcesAccess } from './roleResourcesAccess.entity';
+export { Location } from './location.entity';
+export { User } from './user.entity';
+export { Access } from './auth.entity';
+export { Application } from './application.entity';
+export { Resource } from './resources.entity';
+export { ComparePassword } from './comparePassword.entity';
+export { JobVacancy } from './jobVacancy.entity';
+export { IdentificationType } from './identificationType.entity';

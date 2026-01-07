@@ -42,7 +42,7 @@ export class Access{
     identificationTypeId: number
 
     @Column({ type: 'boolean', nullable: false, default: false })
-    isVerified: boolean
+    isDeleted: boolean
 
     @JoinColumn({ name: 'device_id' })
     deviceId: number
