@@ -1,58 +1,46 @@
-import { Entity, 
-    PrimaryGeneratedColumn,
-    Column,
-    Index,
-    JoinColumn,
-    CreateDateColumn,
-    UpdateDateColumn,
-    DeleteDateColumn
-} from "typeorm";
-
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Role } from './role.entity';
+import { User } from './user.entity';
+import { JobVacancyUser } from './application.entity';
 
 @Entity('access')
-export class Access{
-    @PrimaryGeneratedColumn()
-    id: number
+export class Access {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Index({ unique: true })
-    @Column({ type: 'varchar', length: 60, unique: true, nullable: false })
-    username: string
+  @Column()
+  email: string;
 
-    @Column({ type: 'varchar', length: 120, nullable: false, select: false })
-    password: string
+  @Column()
+  password: string;
 
-    @JoinColumn({ name: 'compare_password_id', })
-    comparePasswordId: number
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
-    @Index({ unique: true })
-    @Column({ type: 'varchar', length: 70, unique: true, nullable: false })
-    email: string
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 
-    @JoinColumn({ name: 'info_user_id' })
-    userInfo: number
+  @DeleteDateColumn({ name: 'deleted_at' })
+  deletedAt: Date;
 
-    @JoinColumn({ name: 'role_id' })
-    roleId: number
+  @ManyToOne(() => Role, (role) => role.accesses, { nullable: false })
+  @JoinColumn({ name: 'role_id' })
+  role: Role;
 
-    @Index({ unique: true })
-    @Column({ type: 'varchar', length: 40, nullable: false, unique: true })
-    identification: string
+  @ManyToOne(() => User, (user) => user.accesses, { nullable: false })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
-    @JoinColumn({ name: 'identification_type_id' })
-    identificationTypeId: number
-
-    @Column({ type: 'boolean', nullable: false, default: false })
-    isDeleted: boolean
-
-    @JoinColumn({ name: 'device_id' })
-    deviceId: number
-
-    @CreateDateColumn({ type: 'timestamptz' , select: false})
-    created_at: Date
-
-    @UpdateDateColumn({ type: 'timestamptz', select: false})
-    updated_at: Date
-
-    @DeleteDateColumn({ type: 'timestamptz', select: false })
-    deleted_at: Date
+  @OneToMany(() => JobVacancyUser, (jobVacancyUser) => jobVacancyUser.access)
+  jobVacancyUsers: JobVacancyUser[];
 }

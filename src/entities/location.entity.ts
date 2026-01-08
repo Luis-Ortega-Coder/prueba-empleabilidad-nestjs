@@ -1,21 +1,38 @@
-// src/locations/entities/location.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { User } from './user.entity';
 import { JobVacancy } from './jobVacancy.entity';
-import { User } from './user.entity'; // Asumiendo que User existe
 
-@Entity('location')
+@Entity('locations')
 export class Location {
-  @PrimaryGeneratedColumn('increment') // O UUID si prefieres
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 100 })
-  name: string;
+  @Column()
+  city: string;
 
-  // Relación inversa (Una ubicación tiene muchas vacantes)
-  @OneToMany(() => JobVacancy, (job) => job.location)
-  jobVacancies: JobVacancy[];
-  
-  // Relación inversa con User (según tu diagrama User tiene location_id)
+  @Column()
+  country: string;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at' })
+  deletedAt: Date;
+
   @OneToMany(() => User, (user) => user.location)
   users: User[];
+
+  @OneToMany(() => JobVacancy, (jobVacancy) => jobVacancy.location)
+  jobVacancies: JobVacancy[];
 }

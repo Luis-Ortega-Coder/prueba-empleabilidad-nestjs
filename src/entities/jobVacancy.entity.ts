@@ -1,92 +1,45 @@
-// src/jobs/entities/job-vacancy.entity.ts
-import { 
-  Entity, 
-  PrimaryGeneratedColumn, 
-  Column, 
-  CreateDateColumn, 
-  UpdateDateColumn, 
-  DeleteDateColumn, 
-  ManyToOne, 
-  OneToMany, 
-  JoinColumn 
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
-import { IsString, IsNotEmpty, IsInt, IsOptional, MaxLength } from 'class-validator';
+import { JobVacancyUser } from './application.entity';
 import { Location } from './location.entity';
-import { User } from './user.entity';
-import { Application } from './application.entity';
 
-@Entity('job_vacancy')
+@Entity('job_vacancies')
 export class JobVacancy {
-  
-  // PK: ID INTEGER
-  @PrimaryGeneratedColumn('increment')
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 120 })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(120)
+  @Column()
   title: string;
 
-  @Column({ type: 'text', nullable: true })
-  @IsString()
-  @IsOptional()
+  @Column()
   description: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  @IsString()
-  @IsNotEmpty()
-  technologies: string; // Podría ser un array en el futuro, pero el diagrama dice varchar
+  @Column()
+  seniorityLevel: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  @IsString()
-  @IsNotEmpty()
-  seniority: string;
+  @Column()
+  workModality: string;
 
-  // ---------------- CAMPOS ADICIONALES DEL DIAGRAMA ----------------
-
-  @Column({ name: 'work_modality', type: 'varchar', length: 50, nullable: true })
-  @IsOptional()
-  workModality: string; // Sugerencia: Usar Enums aquí (Remote, Hybrid, OnSite)
-
-  @Column({ name: 'salary_range', type: 'varchar', length: 100, nullable: true })
-  @IsOptional()
-  salaryRange: string;
-
-  @Column({ type: 'varchar', length: 10, nullable: true })
-  @IsOptional()
-  currency: string; // Ej: USD, EUR
-
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  @IsOptional()
+  @Column()
   company: string;
 
-  @Column({ name: 'maximum_quota', type: 'int', nullable: true })
-  @IsInt()
-  @IsOptional()
-  maximumQuota: number;
+  @Column()
+  salaryRange: number;
 
-  // ---------------- RELACIONES ----------------
+  @Column()
+  softSkills: string;
 
-  // FK: location_id
-  @ManyToOne(() => Location, (location) => location.jobVacancies)
-  @JoinColumn({ name: 'location_id' })
-  location: Location;
-
-  @Column({ name: 'location_id', nullable: true })
-  locationId: number;
-
-  // Relación con User (El reclutador que publica)
-  // Nota: El diagrama tiene una línea entre User y JobVacancy
-  @ManyToOne(() => User, { nullable: true }) 
-  @JoinColumn({ name: 'recruiter_id' }) // Nombre sugerido, o user_id
-  recruiter: User;
-
-  // Relación inversa con Applications
-  @OneToMany(() => Application, (application) => application.jobVacancy)
-  applications: Application[];
-
-  // ---------------- TIMESTAMPS ----------------
+  @Column()
+  maximumApplications: number;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
@@ -96,4 +49,16 @@ export class JobVacancy {
 
   @DeleteDateColumn({ name: 'deleted_at' })
   deletedAt: Date;
+
+  @ManyToOne(() => Location, (location) => location.jobVacancies, {
+    nullable: false,
+  })
+  @JoinColumn({ name: 'location_id' })
+  location: Location;
+
+  @OneToMany(
+    () => JobVacancyUser,
+    (jobVacancyUser) => jobVacancyUser.jobVacancy,
+  )
+  jobVacancyUsers: JobVacancyUser[];
 }

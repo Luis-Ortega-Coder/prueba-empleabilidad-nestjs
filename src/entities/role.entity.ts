@@ -1,44 +1,31 @@
-import { Entity, 
-    PrimaryGeneratedColumn,
-    Column,
-    Index,
-    JoinColumn,
-    OneToMany,
-    CreateDateColumn,
-    UpdateDateColumn,
-    DeleteDateColumn
-} from "typeorm";
-import { RoleResourcesAccess } from "./roleResourcesAccess.entity"
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Access } from './auth.entity';
 
+@Entity('roles')
+export class Role {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-@Entity('role')
-export class Role{
-    @PrimaryGeneratedColumn()
-    id: number
+  @Column()
+  name: string;
 
-    @Index({ unique: true })
-    @Column({ name: 'codename', type: 'varchar', length: 40, unique: true, nullable: false })
-    codeName: string
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
-    @Index({ unique: true })
-    @Column({ type: 'varchar', length: 50, nullable: false, unique: true})
-    name: string
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 
-    @JoinColumn({ name: 'status_id', })
-    statusId: number
+  @DeleteDateColumn({ name: 'deleted_at' })
+  deletedAt: Date;
 
-    @Column({ type: 'boolean', nullable: false, default: false })
-    isDeleted: boolean
-
-    @OneToMany(() => RoleResourcesAccess, (access) => access.role)
-        roleResourcesAccess: RoleResourcesAccess[];
-
-    @CreateDateColumn({ type: 'timestamptz' , select: false})
-    created_at: Date
-
-    @UpdateDateColumn({ type: 'timestamptz', select: false})
-    updated_at: Date
-
-    @DeleteDateColumn({ type: 'timestamptz', select: false })
-    deleted_at: Date
+  @OneToMany(() => Access, (access) => access.role)
+  accesses: Access[];
 }

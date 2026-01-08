@@ -1,37 +1,48 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import * as entities from '../entities/index';
+import { env } from './env.config';
+import {
+  Access,
+  JobVacancy,
+  Role,
+  User,
+  JobVacancyUser,
+  Location,
+} from '../entities/index';
+
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT || 5432),
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  synchronize: true,
-  logging: process.env.DB_LOGGING === 'false',
-  entities: Object.values(entities),
-  ssl: process.env.DB_SSL == 'true' ? { rejectUnauthorized: false } : false,
+  host: env.DATABASE_HOST,
+  port: env.DATABASE_PORT || 5432,
+  username: env.DATABASE_USER,
+  password: env.DATABASE_PASSWORD,
+  database: env.DATABASE_NAME,
+  synchronize: env.DATABASE_SYNCHRONIZE === 'true',
+  logging: env.DATABASE_LOGGING === 'true',
+  entities: [Access, Role, User, Location, JobVacancy, JobVacancyUser],
+  ssl: env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
   extra: {
-    max: 50,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
+    max: env.DATABASE_CONNECTION_MAX,
+    idleTimeoutMillis: env.DATABASE_TIMEOUT_CONNECTION,
+    connectionTimeoutMillis: env.DATABASE_TIME_WAIT_CONNECTION,
   },
 });
 
-export async function initializeDataSource(retries = 5, delay = 2000) {
+export async function initializeDataSource(
+  retries = 5,
+  delay = 2000,
+): Promise<DataSource | undefined> {
   let attempt = 0;
   while (attempt < retries) {
     try {
       await AppDataSource.initialize();
       await AppDataSource.query('SELECT 1');
-
       console.log('Conexión a DB establecida y verificada');
       return AppDataSource;
     } catch (err) {
       attempt++;
       if (err instanceof Error) {
-        console.error(`Intento ${attempt} fallido al conectar a DB: ${err?.message}
+        console.error(`Intento ${attempt} fallido al conectar a DB: ${err}
         `);
       } else {
         console.error(`Intento ${attempt} fallido al conectar a DB: ${err}
