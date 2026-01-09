@@ -8,47 +8,49 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  Index,
 } from 'typeorm';
 import { JobVacancyUser } from './application.entity';
 import { Location } from './location.entity';
 
 @Entity('job_vacancies')
+@Index('IDX_JOB_VACANCY', ['title'], { unique:true })
 export class JobVacancy {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ name: 'title', type: 'varchar', length: '70' })
   title: string;
 
-  @Column()
+  @Column({ name: 'description', type: 'text', nullable: true })
   description: string;
 
-  @Column()
+  @Column({ name: 'seniority_level', type: 'varchar', length: 70 })
   seniorityLevel: string;
 
-  @Column()
+  @Column({ name: 'work_modality', type: 'varchar', length: 60 })
   workModality: string;
 
-  @Column()
+  @Column({ name: 'company', type: 'varchar', length: 60 })
   company: string;
 
-  @Column()
+  @Column({ name: 'salary_range', type: 'float' })
   salaryRange: number;
 
-  @Column()
+  @Column({ name: 'soft_skills', type: 'varchar', length: 60 })
   softSkills: string;
 
-  @Column()
+  @Column({ name: 'max_aplications', type: 'integer' })
   maximumApplications: number;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', type:'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({ name: 'updated_at', type:'timestamptz' })
   updatedAt: Date;
 
-  @DeleteDateColumn({ name: 'deleted_at' })
-  deletedAt: Date;
+  @DeleteDateColumn({ name: 'deleted_at', type:'timestamptz' })
+  deletedAt: Date | null;
 
   @ManyToOne(() => Location, (location) => location.jobVacancies, {
     nullable: false,

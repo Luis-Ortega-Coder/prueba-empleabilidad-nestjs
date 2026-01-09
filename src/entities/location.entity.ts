@@ -15,20 +15,20 @@ export class Location {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ name:'city', type: 'varchar', length: 40 })
   city: string;
 
-  @Column()
+  @Column({ name:'country', type: 'varchar', length: 40 })
   country: string;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz'})
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz'})
   updatedAt: Date;
 
-  @DeleteDateColumn({ name: 'deleted_at' })
-  deletedAt: Date;
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz'})
+  deletedAt: Date | null;
 
   @OneToMany(() => User, (user) => user.location)
   users: User[];

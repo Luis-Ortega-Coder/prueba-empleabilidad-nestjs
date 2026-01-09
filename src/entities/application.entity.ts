@@ -12,19 +12,19 @@ import { JobVacancy } from './jobVacancy.entity';
 import { Access } from './auth.entity';
 
 @Entity('job_vacancy_users')
-@Index(['jobVacancy', 'access'], { unique: true })
+@Index('IDX_JOB_VACANCY_USERS', ['jobVacancy', 'access'], { unique: true })
 export class JobVacancyUser {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz'})
   updatedAt: Date;
 
-  @DeleteDateColumn({ name: 'deleted_at' })
-  deletedAt: Date;
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz'})
+  deletedAt: Date | null;
 
   @ManyToOne(() => JobVacancy, (jobVacancy) => jobVacancy.jobVacancyUsers, {
     nullable: false,

@@ -1,66 +1,101 @@
 import { Injectable } from '@nestjs/common';
-import { Repository, DataSource } from 'typeorm';
+import { DataSource } from 'typeorm';
+import { BaseRepository } from '../base-repository/base.repository';
 import { Access } from '../entities/auth.entity';
 
 @Injectable()
-export class AccessRepository extends Repository<Access> {
-  constructor(private readonly dataSource: DataSource) {
-    super(Access, dataSource.createEntityManager());
+export class AccessRepository extends BaseRepository<Access> {
+  constructor(dataSource: DataSource) {
+    super(dataSource, Access);
   }
 
   /**
-   * Obtener un Access por ID con relaciones necesarias
+   * 🔐 Login query (HOT PATH)
+   * Usada en autenticación
    */
-  async getAccessById(id: number): Promise<Access | null> {
+  async findForLogin(email: string): Promise<Access | null> {
     return this.createQueryBuilder('access')
-      .leftJoinAndSelect('access.role', 'role')
-      .leftJoinAndSelect('access.user', 'user')
-      .leftJoinAndSelect('access.jobVacancyUsers', 'jvu')
-      .where('access.id = :id', { id })
+      .select([
+        'access.id',
+        'access.email',
+        'access.password',
+      ])
+      .where('access.email = :email', { email })
+      .andWhere('access.deleted_at IS NULL')
+      .limit(1)
       .getOne();
   }
 
   /**
-   * Listar Access con paginación
+   * ⚡ Authorization query
+   * Usada en guards / middlewares
    */
-  async listAccesses(page = 1, limit = 50): Promise<Access[]> {
+  async findWithRoleAndUser(accessId: number): Promise<Access | null> {
     return this.createQueryBuilder('access')
-      .leftJoinAndSelect('access.role', 'role')
-      .leftJoinAndSelect('access.user', 'user')
-      .orderBy('access.id', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit)
+      .select([
+        'access.id',
+        'access.email',
+        'role.id',
+        'role.name',
+        'user.id',
+        'user.firstName',
+        'user.lastName',
+      ])
+      .innerJoin('access.role', 'role')
+      .innerJoin('access.user', 'user')
+      .where('access.id = :id', { id: accessId })
+      .andWhere('access.deleted_at IS NULL')
+      .limit(1)
+      .getOne();
+  }
+
+  /**
+   * 📊 Validación rápida de existencia
+   * Ideal para guards de alto tráfico
+   */
+  async existsActiveAccess(accessId: number): Promise<boolean> {
+    const result = await this.createQueryBuilder('access')
+      .select('1')
+      .where('access.id = :id', { id: accessId })
+      .andWhere('access.deleted_at IS NULL')
+      .limit(1)
+      .getRawOne();
+
+    return !!result;
+  }
+
+  /**
+   * 🧠 Accesos por usuario (paginado)
+   * Uso administrativo
+   */
+  async findByUserId(
+    userId: number,
+    limit = 20,
+    offset = 0,
+  ): Promise<Access[]> {
+    return this.createQueryBuilder('access')
+      .select([
+        'access.id',
+        'access.email',
+        'access.createdAt',
+      ])
+      .where('access.user_id = :userId', { userId })
+      .andWhere('access.deleted_at IS NULL')
+      .orderBy('access.created_at', 'DESC')
+      .limit(limit)
+      .offset(offset)
       .getMany();
   }
 
   /**
-   * Crear un Access de forma segura y rápida
+   * 🗑 Soft delete ultra rápido
    */
-  async createAccess(userId: number, roleId: number): Promise<Access> {
-    const access = this.create({
-      user: { id: userId },
-      role: { id: roleId },
-    });
-    return this.save(access);
-  }
-
-
-  async updateAccess(id: number, payload: Partial<Access>): Promise<void> {
+  async softDeleteById(accessId: number): Promise<void> {
     await this.createQueryBuilder()
       .update(Access)
-      .set(payload)
-      .where('id = :id', { id })
-      .execute();
-  }
-
-  /**
-   * Eliminar Access
-   */
-  async deleteAccess(id: number): Promise<void> {
-    await this.createQueryBuilder()
-      .delete()
-      .from(Access)
-      .where('id = :id', { id })
+      .set({ deletedAt: () => 'NOW()' })
+      .where('id = :id', { id: accessId })
+      .andWhere('deleted_at IS NULL')
       .execute();
   }
 }
