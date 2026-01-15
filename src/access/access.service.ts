@@ -14,8 +14,8 @@ export class AccessService {
   ) {}
 
 
-  async validateCredentials( dtoAccces ) {
-    const { email, password } = dtoAccces
+  async validateCredentials( dtoAcccess ) {
+    const { email, password } = dtoAcccess
 
     const access = await this.accessRepository.findForLogin(email);
 
