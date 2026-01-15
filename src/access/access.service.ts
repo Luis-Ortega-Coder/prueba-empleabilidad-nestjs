@@ -1,53 +1,67 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import { LoginAccessDto } from './dto/login-access.dto';
+import { AccessIdDto } from './dto/access-id.dto';
 import { AccessRepository } from './access.repository';
+import { JwtPayload } from '../jwt/jwt.types'
+import { JwtService } from '../jwt/jwt.service'
 import * as argon2 from 'argon2';
 
 @Injectable()
 export class AccessService {
   constructor(
     private readonly accessRepository: AccessRepository,
+    private readonly authJwtService: JwtService
   ) {}
 
-  /**
-   * 🔐 LOGIN (HOT PATH)
-   * Esta función se ejecuta millones de veces
-   */
-  async validateCredentials(
-    email: string,
-    plainPassword: string,
-  ) {
+
+  async validateCredentials( dtoAccces ) {
+    const { email, password } = dtoAccces
+
     const access = await this.accessRepository.findForLogin(email);
 
-    if (!access) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    const passwordHash = access ? access.password : '';
 
-    const passwordValid = await argon2.verify(
-      access.password,
-      plainPassword,
-    );
+    const passwordValid = await argon2.verify(passwordHash, password);
+
+    if (!access){
+      throw new NotFoundException('not found')
+    }
 
     if (!passwordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // ⚠️ Nunca devolver el password
     return {
       id: access.id,
-      email: access.email,
-    };
+      name: access.user.firstName,
+      role: access.role.name
+    }       
+
   }
 
-  /**
-   * ⚡ AUTHORIZATION (GUARDS)
-   * Ultra frecuente
-   */
-  async getAccessContext(accessId: number) {
-    const access =
-      await this.accessRepository.findWithRoleAndUser(accessId);
+
+  async Login(dto: LoginAccessDto){
+    const user = await this.validateCredentials(dto);
+
+    const payloadUser: JwtPayload = {
+      id: user.id,
+      sub: user.name,
+      role: user.role
+    }
+    
+    const acccessToken = this.authJwtService.signAccessToken(payloadUser);
+
+    return { acccessToken }
+
+  }
+
+ 
+  async getAccessContext(dto: AccessIdDto) {
+    const { accessId } = dto
+    const access = await this.accessRepository.findWithRoleAndUser(accessId);
 
     if (!access) {
-      throw new UnauthorizedException('Access not found');
+      throw new NotFoundException('Access not found');
     }
 
     return {
@@ -65,17 +79,12 @@ export class AccessService {
     };
   }
 
-  /**
-   * 🚀 VALIDACIÓN RÁPIDA (GUARDS MASIVOS)
-   * Ideal para endpoints públicos/protegidos
-   */
+ 
   async isAccessActive(accessId: number): Promise<boolean> {
     return this.accessRepository.existsActiveAccess(accessId);
   }
 
-  /**
-   * 📊 Accesos por usuario (uso administrativo)
-   */
+  
   async getUserAccesses(
     userId: number,
     limit = 20,
@@ -88,9 +97,7 @@ export class AccessService {
     );
   }
 
-  /**
-   * 🗑 Desactivación de acceso (soft delete)
-   */
+ 
   async revokeAccess(accessId: number): Promise<void> {
     await this.accessRepository.softDeleteById(accessId);
   }

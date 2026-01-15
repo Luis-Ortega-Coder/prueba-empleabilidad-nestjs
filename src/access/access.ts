@@ -24,14 +24,11 @@ export class AccessService {
     // Query mínima: buscar por email
     const access = await this.accessRepository.findOne({ where: { email, deletedAt: IsNull()} });
 
-    if (access)
+    const passwordHash = access ? access.password : '';
 
-    if (!access) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    const passwordValid = await bcrypt.compare(password, passwordHash);
 
-    const passwordValid = await bcrypt.compare(password, access.password);
-    if (!passwordValid) {
+    if (!access || !passwordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
 

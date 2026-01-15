@@ -9,10 +9,7 @@ export class AccessRepository extends BaseRepository<Access> {
     super(dataSource, Access);
   }
 
-  /**
-   * 🔐 Login query (HOT PATH)
-   * Usada en autenticación
-   */
+
   async findForLogin(email: string): Promise<Access | null> {
     return this.createQueryBuilder('access')
       .select([
@@ -26,10 +23,7 @@ export class AccessRepository extends BaseRepository<Access> {
       .getOne();
   }
 
-  /**
-   * ⚡ Authorization query
-   * Usada en guards / middlewares
-   */
+ 
   async findWithRoleAndUser(accessId: number): Promise<Access | null> {
     return this.createQueryBuilder('access')
       .select([
@@ -49,10 +43,7 @@ export class AccessRepository extends BaseRepository<Access> {
       .getOne();
   }
 
-  /**
-   * 📊 Validación rápida de existencia
-   * Ideal para guards de alto tráfico
-   */
+
   async existsActiveAccess(accessId: number): Promise<boolean> {
     const result = await this.createQueryBuilder('access')
       .select('1')
@@ -64,10 +55,7 @@ export class AccessRepository extends BaseRepository<Access> {
     return !!result;
   }
 
-  /**
-   * 🧠 Accesos por usuario (paginado)
-   * Uso administrativo
-   */
+ 
   async findByUserId(
     userId: number,
     limit = 20,
@@ -87,9 +75,7 @@ export class AccessRepository extends BaseRepository<Access> {
       .getMany();
   }
 
-  /**
-   * 🗑 Soft delete ultra rápido
-   */
+
   async softDeleteById(accessId: number): Promise<void> {
     await this.createQueryBuilder()
       .update(Access)

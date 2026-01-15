@@ -17,26 +17,24 @@ export class BaseRepository<T extends ObjectLiteral> extends Repository<T> {
     super(entity, dataSource.createEntityManager());
   }
 
-  /**
-   * Construye el query builder base con filtros, relaciones y selects.
-   */
+  
   private buildQuery(params?: QueryParams<T>): SelectQueryBuilder<T> {
     const alias = 'entity';
     let qb = this.createQueryBuilder(alias);
 
-    // Relaciones
+   
     if (params?.relations?.length) {
       params.relations.forEach((rel) => {
         qb = qb.leftJoinAndSelect(`${alias}.${rel}`, rel);
       });
     }
 
-    // Selección de campos
+   
     if (params?.select?.length) {
       qb = qb.select(params.select.map((f) => `${alias}.${String(f)}`));
     }
 
-    // Filtros dinámicos
+    
     if (params?.filters) {
       Object.entries(params.filters).forEach(([key, value], index) => {
         const paramName = `filter_${key}_${index}`;
@@ -50,47 +48,39 @@ export class BaseRepository<T extends ObjectLiteral> extends Repository<T> {
       });
     }
 
-    // Ordenamiento
+    
     if (params?.order) {
       Object.entries(params.order).forEach(([key, value]) => {
         qb.addOrderBy(`${alias}.${key}`, value as 'ASC' | 'DESC');
       });
     }
 
-    // Paginación
+    
     if (params?.skip) qb = qb.skip(params.skip);
     if (params?.take) qb = qb.take(params.take);
 
     return qb;
   }
 
-  /**
-   * Obtiene múltiples registros con parámetros dinámicos
-   */
+ 
   async findWithQuery(params?: QueryParams<T>): Promise<T[]> {
     const qb = this.buildQuery(params);
     return qb.getMany();
   }
 
-  /**
-   * Obtiene un único registro
-   */
+  
   async findOneWithQuery(params?: QueryParams<T>): Promise<T | null> {
     const qb = this.buildQuery(params);
     return qb.getOne();
   }
 
-  /**
-   * Conteo de registros para paginación
-   */
+  
   async countWithQuery(params?: QueryParams<T>): Promise<number> {
     const qb = this.buildQuery(params);
     return qb.getCount();
   }
 
-  /**
-   * Ejemplo de subconsulta optimizada
-   */
+  
   async findWithSubquery<R extends ObjectLiteral>(
   subQuery: (qb: SelectQueryBuilder<T>) => SelectQueryBuilder<R>,
   params?: QueryParams<T>,
@@ -98,6 +88,4 @@ export class BaseRepository<T extends ObjectLiteral> extends Repository<T> {
   const qb = this.buildQuery(params);
   qb.addSelect((sub) => subQuery(sub), 'subquery');
   return qb.getMany();
-}
-
-}
+}}
