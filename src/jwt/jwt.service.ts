@@ -28,7 +28,7 @@ export class JwtService {
         algorithms: ['RS256'],
       });
     } catch {
-      throw new UnauthorizedException('Token inválido');
+      throw new UnauthorizedException('invalid token');
     }
   }
 }

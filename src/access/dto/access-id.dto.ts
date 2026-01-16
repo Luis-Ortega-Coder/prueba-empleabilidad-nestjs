@@ -1,7 +1,8 @@
-import { IsInt, Min } from 'class-validator';
+import { IsInt, Min, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class AccessIdDto {
+  @IsNotEmpty({ message: 'fields required' })
   @Type(() => Number)
   @IsInt()
   @Min(1)

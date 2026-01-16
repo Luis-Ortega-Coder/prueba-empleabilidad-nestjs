@@ -8,13 +8,13 @@ import {
 import { Transform } from 'class-transformer';
 
 export class LoginAccessDto {
+  @IsNotEmpty({ message: 'required field' })
   @IsEmail({}, { message: 'Invalid email' })
   @Transform(({ value }) => value.trim().toLowerCase())
   @Length(5, 60)
-  @IsNotEmpty({ message: 'required field' })
   email: string;
 
-  @IsString()
+  @IsNotEmpty({ message: 'required field' })
   @IsStrongPassword({
     minSymbols: 1,
     minLength: 9,
@@ -22,7 +22,6 @@ export class LoginAccessDto {
     minUppercase: 2
   },
   { message: 'Vulnerable passwords' })
-  @IsNotEmpty({ message: 'required field' })
   @Length(9, 92)
   password: string;
 }
