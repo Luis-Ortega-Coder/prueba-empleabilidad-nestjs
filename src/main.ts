@@ -8,15 +8,15 @@ async function bootstrap() {
   app.enableCors();
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,            // elimina campos extra
+      whitelist: true, // elimina campos extra
       forbidNonWhitelisted: true, // rechaza payloads basura
-      transform: true,            // aplica @Type
+      transform: true, // aplica @Type
       transformOptions: {
-      enableImplicitConversion: false,
-    },
-    stopAtFirstError: true,     // menos CPU
-  }),
-);
+        enableImplicitConversion: false,
+      },
+      stopAtFirstError: true, // menos CPU
+    }),
+  );
   enviroment();
   await initializeDataSource();
   await app.listen(env.APP_PORT, () => {

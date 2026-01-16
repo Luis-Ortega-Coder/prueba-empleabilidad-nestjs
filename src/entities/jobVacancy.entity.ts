@@ -14,7 +14,7 @@ import { JobVacancyUser } from './application.entity';
 import { Location } from './location.entity';
 
 @Entity('job_vacancies')
-@Index('IDX_JOB_VACANCY', ['title'], { unique:true })
+@Index('IDX_JOB_VACANCY', ['title'], { unique: true })
 export class JobVacancy {
   @PrimaryGeneratedColumn()
   id: number;

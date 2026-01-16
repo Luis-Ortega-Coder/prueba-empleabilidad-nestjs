@@ -14,7 +14,6 @@ import { Role } from './role.entity';
 import { User } from './user.entity';
 import { JobVacancyUser } from './application.entity';
 
-
 @Entity('access')
 @Index('IDX_UNIQUE_ACCESS', ['email'], { unique: true })
 export class Access {
@@ -27,13 +26,13 @@ export class Access {
   @Column({ name: 'password', type: 'varchar', length: 120 })
   password: string;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamptz'})
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz'})
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt: Date;
 
-  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz'})
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz' })
   deletedAt: Date | null;
 
   @ManyToOne(() => Role, (role) => role.accesses, { nullable: false })

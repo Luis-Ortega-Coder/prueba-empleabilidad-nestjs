@@ -6,7 +6,6 @@ import { JwtPayload } from './jwt.types';
 export class JwtService {
   constructor(private readonly jwt: NestJwtService) {}
 
-
   signAccessToken(payload: JwtPayload): string {
     return this.jwt.sign(
       {
@@ -20,7 +19,6 @@ export class JwtService {
       },
     );
   }
-
 
   verifyAccessToken(token: string): JwtPayload {
     try {

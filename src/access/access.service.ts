@@ -10,7 +10,7 @@ import * as argon2 from 'argon2';
 export class AccessService {
   constructor(
     private readonly accessRepository: AccessRepository,
-    private readonly authJwtService: JwtService
+    private readonly authJwtService: JwtService,
   ) {}
 
 
@@ -40,7 +40,7 @@ export class AccessService {
   }
 
 
-  async Login(dto: LoginAccessDto){
+  async Login(dto: Readonly<LoginAccessDto>){
     const user = await this.validateCredentials(dto);
 
     const payloadUser: JwtPayload = {
