@@ -1,4 +1,4 @@
-export class JwtPayload {
+export interface JwtPayload {
   id: number
   sub: string;        
   role: string;

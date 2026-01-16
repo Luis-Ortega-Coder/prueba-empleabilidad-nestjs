@@ -7,7 +7,7 @@ export class AcceessController {
   constructor(private readonly accessService: AccessService) {}
 
   @Post('login')
-  login(@Body() dto: LoginAccessDto) {
-    return this.accessService.Login(dto);
+  async login(@Body() dto: LoginAccessDto) {
+    return await this.accessService.Login(dto);
   }
 }
